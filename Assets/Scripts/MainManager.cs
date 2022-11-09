@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -10,7 +12,12 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
+    public Text highscoreName;
+    public Text highscore;
+
     public Text ScoreText;
+    public Text playerNameText;
+
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -22,6 +29,17 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //playerNameText.text = HighscoreManager.Instance.currentPlayer;
+
+        hashighScore();
+
+        //HighscoreName.text = HighscoreManager.Instance.playerName;
+
+        /*
+        //loads highscore and player name, if there is one
+        HighScorePlayerNameText.text = HighscoreManager.Instance.playerName;
+        HighscoreText.text = "Highscore: " + HighscoreManager.Instance.playerScore; */
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -66,11 +84,50 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        HighscoreManager.Instance.currentScore = m_Points;
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        checkHighscore();
+    }
+
+    public void returnMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void checkHighscore()
+    {
+        if(m_Points > HighscoreManager.Instance.highscore)
+        {
+            highscoreName.text = HighscoreManager.Instance.currentPlayer;
+            highscore.text = "Highscore: " + m_Points;
+
+            HighscoreManager.Instance.highscoreName = HighscoreManager.Instance.currentPlayer;
+            HighscoreManager.Instance.highscore = HighscoreManager.Instance.currentScore;
+
+            HighscoreManager.Instance.SaveScore();
+        } else
+        {
+            Debug.Log("No Highscore");
+        }
+    }
+
+    public void hashighScore()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            playerNameText.text = HighscoreManager.Instance.currentPlayer;
+            highscoreName.text = HighscoreManager.Instance.highscoreName;
+            highscore.text = "Highscore: " + HighscoreManager.Instance.highscore;
+        } else
+        {
+            playerNameText.text = HighscoreManager.Instance.currentPlayer;
+            highscoreName.text = HighscoreManager.Instance.currentPlayer;
+        }
     }
 }
